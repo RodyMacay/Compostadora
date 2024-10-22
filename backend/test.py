@@ -1,15 +1,10 @@
-import serial
 import requests
 import time
-
-# Configuración del puerto serial (ajusta 'COM3' al puerto donde esté tu Arduino)
-serial_port = 'COM3'  # o '/dev/ttyUSB0' en Linux
-baud_rate = 9600
-ser = serial.Serial(serial_port, baud_rate)
+import random
 
 # Tu clave de escritura de ThingSpeak y el ID del canal
 api_key = '2706807' 
-channel_id = 'NT58FIVI1SXANGJS'
+channel_id = 'NT58FIVI1SXANGJS'  
 
 def send_to_thingspeak(temperature, humidity):
     url = f"https://api.thingspeak.com/update?api_key={api_key}&field1={temperature}&field2={humidity}"
@@ -24,19 +19,15 @@ def send_to_thingspeak(temperature, humidity):
 
 while True:
     try:
-        if ser.in_waiting > 0:
-            line = ser.readline().decode('utf-8').rstrip()
-            print("Datos recibidos:", line)
-            
-            # Extraer valores de temperatura y humedad de la línea
-            if "Temperatura" in line and "Humedad" in line:
-                parts = line.split(", ")
-                temp = parts[0].split(": ")[1].replace(" *C", "")
-                hum = parts[1].split(": ")[1].replace(" %", "")
-                
-                # Enviar los datos a ThingSpeak
-                send_to_thingspeak(temp, hum)
-                
+        # Generar datos aleatorios de temperatura y humedad
+        simulated_temperature = round(random.uniform(20.0, 35.0), 2)  # Temperatura simulada entre 20 y 35 grados Celsius
+        simulated_humidity = round(random.uniform(30.0, 80.0), 2)  # Humedad simulada entre 30% y 80%
+
+        print(f"Simulación - Temperatura: {simulated_temperature} *C, Humedad: {simulated_humidity} %")
+        
+        # Enviar los datos simulados a ThingSpeak
+        send_to_thingspeak(simulated_temperature, simulated_humidity)
+        
         time.sleep(15)  # Esperar 15 segundos para cumplir con los límites de ThingSpeak
     except KeyboardInterrupt:
         print("Interrumpido por el usuario")
