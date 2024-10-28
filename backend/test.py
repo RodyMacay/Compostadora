@@ -3,8 +3,8 @@ import time
 import random
 
 # Tu clave de escritura de ThingSpeak y el ID del canal
-api_key = '2706807' 
-channel_id = 'NT58FIVI1SXANGJS'  
+api_key = 'VVMN48PXR9T8GUHY' 
+channel_id = '2706807'  
 
 def send_to_thingspeak(temperature, humidity):
     url = f"https://api.thingspeak.com/update?api_key={api_key}&field1={temperature}&field2={humidity}"

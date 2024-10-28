@@ -1,42 +1,53 @@
-// components/HumidityChart.tsx
 import { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-type HumidityData = {
+type SensorData = {
   created_at: string;
-  field2: string;
+  field1: string; // Temperatura
+  field2: string; // Humedad
 };
 
-const HumidityChart = () => {
-  const [humidityData, setHumidityData] = useState<number[]>([]);
+const ActividadMicrobianaChart = () => {
+  const [actividadData, setActividadData] = useState<number[]>([]);
   const [timeLabels, setTimeLabels] = useState<string[]>([]);
   const [interval, setInterval] = useState<'hour' | 'day' | 'month'>('hour');
 
   useEffect(() => {
     const fetchData = async () => {
-      // Define el número de resultados en función del intervalo seleccionado
       const results = interval === 'hour' ? 8 : interval === 'day' ? 300 : 800;
-      const response = await fetch(`/api/getHumidityData?results=${results}`);
-      const data: HumidityData[] = await response.json();
+      const response = await fetch(`https://api.thingspeak.com/channels/2706807/feeds.json?api_key=2V1G2CJDMI0FM6RJ&results=${results}`);
+      const data = await response.json();
 
-      // Procesa los datos en función del intervalo seleccionado
-      const processedData = processDataByInterval(data, interval);
-      setHumidityData(processedData.values);
+      // Procesa los datos de actividad microbiana
+      const processedData = processDataByInterval(data.feeds, interval);
+      setActividadData(processedData.values);
       setTimeLabels(processedData.labels);
     };
 
     fetchData();
   }, [interval]);
 
-  const processDataByInterval = (data: HumidityData[], interval: 'hour' | 'day' | 'month') => {
+  const calcularNivelActividadMicrobiana = (temperatura: number, humedad: number): number => {
+    const temperaturaOptima = temperatura >= 40 && temperatura <= 60;
+    const humedadOptima = humedad >= 50 && humedad <= 60;
+
+    if (temperaturaOptima && humedadOptima) return 2; // Alta
+    if (temperaturaOptima || humedadOptima) return 1; // Media
+    return 0; // Baja
+  };
+
+  const processDataByInterval = (data: SensorData[], interval: 'hour' | 'day' | 'month') => {
     const groupedData: { [key: string]: number[] } = {};
 
     data.forEach((entry) => {
       const date = new Date(entry.created_at);
       let label = '';
+      const temperatura = parseFloat(entry.field1);
+      const humedad = parseFloat(entry.field2);
+      const actividad = calcularNivelActividadMicrobiana(temperatura, humedad);
 
       // Agrupa los datos según el intervalo
       if (interval === 'hour') {
@@ -50,7 +61,7 @@ const HumidityChart = () => {
       if (!groupedData[label]) {
         groupedData[label] = [];
       }
-      groupedData[label].push(parseFloat(entry.field2));
+      groupedData[label].push(actividad);
     });
 
     // Calcula el promedio de los valores agrupados
@@ -67,10 +78,10 @@ const HumidityChart = () => {
     labels: timeLabels,
     datasets: [
       {
-        label: 'Humedad (%)',
-        data: humidityData,
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        label: 'Nivel de Actividad Microbiana',
+        data: actividadData,
+        borderColor: 'rgba(255, 99, 132, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
         fill: true,
       },
     ],
@@ -87,9 +98,10 @@ const HumidityChart = () => {
       },
       y: {
         beginAtZero: true,
+        max: 2,
         title: {
           display: true,
-          text: 'Humedad (%)',
+          text: 'Nivel de Actividad (0 = Baja, 1 = Media, 2 = Alta)',
         },
       },
     },
@@ -97,7 +109,7 @@ const HumidityChart = () => {
 
   return (
     <div>
-      <h2>Humedad en Tiempo Real</h2>
+      <h2>Nivel de Actividad Microbiana en Tiempo Real</h2>
       <select value={interval} onChange={(e) => setInterval(e.target.value as 'hour' | 'day' | 'month')}>
         <option value="hour">Por Hora</option>
         <option value="day">Por Día</option>
@@ -108,4 +120,4 @@ const HumidityChart = () => {
   );
 };
 
-export default HumidityChart;
+export default ActividadMicrobianaChart;

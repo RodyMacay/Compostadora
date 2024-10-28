@@ -1,13 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const channelID = '2706807';
-  const apiKey = "VVMN48PXR9T8GUHY";
-
-  // Obtén el valor de "results" de la consulta; usa 8 como valor predeterminado si no se proporciona
-  const results = req.query.results || 8;
-  
-  const url = `https://api.thingspeak.com/channels/${channelID}/fields/1.json?api_key=${apiKey}&results=${results}`;
+    const channelID = '2706807'
+    const apiKey = "VVMN48PXR9T8GUHY" 
+  const url = `https://api.thingspeak.com/channels/${channelID}/fields/4.json?api_key=${apiKey}&results=8`;
   
   try {
     const response = await fetch(url);

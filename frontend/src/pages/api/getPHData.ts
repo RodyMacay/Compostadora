@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const channelID = '2706807'
-    const apiKey = "NT58FIVI1SXANGJS" 
+    const apiKey = "VVMN48PXR9T8GUHY" 
   const url = `https://api.thingspeak.com/channels/${channelID}/fields/3.json?api_key=${apiKey}&results=8`;
   
   try {

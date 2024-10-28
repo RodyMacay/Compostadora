@@ -3,13 +3,13 @@ import requests
 import time
 
 # Configuración del puerto serial (ajusta 'COM3' al puerto donde esté tu Arduino)
-serial_port = 'COM3'  # o '/dev/ttyUSB0' en Linux
+serial_port = 'COM3' 
 baud_rate = 9600
 ser = serial.Serial(serial_port, baud_rate)
 
 # Tu clave de escritura de ThingSpeak y el ID del canal
-api_key = '2706807' 
-channel_id = 'NT58FIVI1SXANGJS'
+api_key = 'VVMN48PXR9T8GUHY' 
+channel_id = '2706807'
 
 def send_to_thingspeak(temperature, humidity):
     url = f"https://api.thingspeak.com/update?api_key={api_key}&field1={temperature}&field2={humidity}"
